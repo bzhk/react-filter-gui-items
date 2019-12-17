@@ -1,0 +1,22 @@
+{
+  "name": "react-filter-gui-items",
+  "version": "1.0.0",
+  "description": "System for filter content by tags",
+  "main": "./build/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bzhk/react-filter-gui-items.git"
+  },
+  "keywords": [
+    "react-filter"
+  ],
+  "author": "Bartosz Kończyk",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/bzhk/react-filter-gui-items/issues"
+  },
+  "homepage": "https://github.com/bzhk/react-filter-gui-items#readme"
+}
