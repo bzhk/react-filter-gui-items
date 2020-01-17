@@ -69,6 +69,68 @@ function _possibleConstructorReturn(self, call) {
   return _assertThisInitialized(self);
 }
 
+function _slicedToArray(arr, i) {
+  return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest();
+}
+
+function _toConsumableArray(arr) {
+  return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread();
+}
+
+function _arrayWithoutHoles(arr) {
+  if (Array.isArray(arr)) {
+    for (var i = 0, arr2 = new Array(arr.length); i < arr.length; i++) arr2[i] = arr[i];
+
+    return arr2;
+  }
+}
+
+function _arrayWithHoles(arr) {
+  if (Array.isArray(arr)) return arr;
+}
+
+function _iterableToArray(iter) {
+  if (Symbol.iterator in Object(iter) || Object.prototype.toString.call(iter) === "[object Arguments]") return Array.from(iter);
+}
+
+function _iterableToArrayLimit(arr, i) {
+  if (!(Symbol.iterator in Object(arr) || Object.prototype.toString.call(arr) === "[object Arguments]")) {
+    return;
+  }
+
+  var _arr = [];
+  var _n = true;
+  var _d = false;
+  var _e = undefined;
+
+  try {
+    for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) {
+      _arr.push(_s.value);
+
+      if (i && _arr.length === i) break;
+    }
+  } catch (err) {
+    _d = true;
+    _e = err;
+  } finally {
+    try {
+      if (!_n && _i["return"] != null) _i["return"]();
+    } finally {
+      if (_d) throw _e;
+    }
+  }
+
+  return _arr;
+}
+
+function _nonIterableSpread() {
+  throw new TypeError("Invalid attempt to spread non-iterable instance");
+}
+
+function _nonIterableRest() {
+  throw new TypeError("Invalid attempt to destructure non-iterable instance");
+}
+
 function unwrapExports (x) {
 	return x && x.__esModule && Object.prototype.hasOwnProperty.call(x, 'default') ? x['default'] : x;
 }
@@ -29555,15 +29617,100 @@ var propTypes = createCommonjsModule(function (module) {
 }
 });
 
+var Button = function Button(_ref) {
+  var tag = _ref.tag,
+      filterByTag = _ref.filterByTag,
+      isActive = _ref.isActive;
+  return react.createElement("button", {
+    onClick: filterByTag,
+    "data-tag": tag
+  }, tag, isActive ? "*" : "");
+};
+
+var Buttons = function Buttons(_ref) {
+  var tags = _ref.tags,
+      filterByTag = _ref.filterByTag,
+      activeTag = _ref.activeTag;
+  return react.createElement(react.Fragment, null, tags.map(function (tag) {
+    return react.createElement(Button, {
+      key: tag,
+      tag: tag,
+      filterByTag: filterByTag,
+      isActive: activeTag === tag
+    });
+  }));
+};
+
 var MainGrid = react.memo(function (_ref) {
-  var tags = _ref.tags;
+  var gallery = _ref.gallery;
+
+  var _React$useState = react.useState([]),
+      _React$useState2 = _slicedToArray(_React$useState, 2),
+      tags = _React$useState2[0],
+      setTags = _React$useState2[1];
+
+  var _React$useState3 = react.useState(""),
+      _React$useState4 = _slicedToArray(_React$useState3, 2),
+      activeTag = _React$useState4[0],
+      setActiveTag = _React$useState4[1];
+
+  react.useEffect(function () {
+    var tags = gallery.reduce(function (start, next) {
+      var tags = next.tags.split(",").filter(function (tag) {
+        return start.indexOf(tag) === -1;
+      });
+      start.push.apply(start, _toConsumableArray(tags));
+      return start;
+    }, []);
+    setTags(tags);
+  }, []);
+
+  var filterByTag = function filterByTag(ev) {
+    var tag = ev.target.dataset.tag;
+    setActiveTag(tag);
+  };
+
   return react.createElement("div", {
     id: "main-grid"
-  }, "Teast");
+  }, react.createElement(Buttons, {
+    tags: tags,
+    filterByTag: filterByTag,
+    activeTag: activeTag
+  }));
 });
 MainGrid.propTypes = {
   tags: propTypes.arrayOf(propTypes.string)
 };
+
+var data = [{
+  tags: "mountains,winter",
+  link: "https://images.unsplash.com/photo-1578241561880-0a1d5db3cb8a?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1350&q=80",
+  alt: ""
+}, {
+  tags: "sea,sun",
+  link: "https://images.unsplash.com/photo-1579198203629-e9aed4d27e3b?ixlib=rb-1.2.1&auto=format&fit=crop&w=634&q=80",
+  alt: ""
+}, {
+  tags: "sea,cliffs",
+  link: "https://images.unsplash.com/photo-1578165219176-ece04edbd053?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1350&q=80",
+  alt: ""
+}, {
+  tags: "forest,winter",
+  link: "https://images.unsplash.com/photo-1578167597239-14f8fc680b6b?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1556&q=80",
+  alt: ""
+}, {
+  tags: "river,valley",
+  link: "https://images.unsplash.com/photo-1577993625454-1dec02cedd4b?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=659&q=80",
+  alt: ""
+}, {
+  tags: "mountains,forest",
+  link: "https://images.unsplash.com/photo-1577998076239-ea6d9a7dcd82?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1350&q=80",
+  alt: ""
+}, {
+  tags: "forest,valley",
+  link: "https://images.unsplash.com/photo-1577949239703-4e1d8aa72824?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1492&q=80",
+  alt: ""
+}];
 
 var App =
 /*#__PURE__*/
@@ -29579,7 +29726,9 @@ function (_React$Component) {
   _createClass(App, [{
     key: "render",
     value: function render() {
-      return react.createElement("div", null, react.createElement(MainGrid, null));
+      return react.createElement("div", null, react.createElement(MainGrid, {
+        gallery: data
+      }));
     }
   }]);
 
