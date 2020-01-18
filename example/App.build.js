@@ -22,6 +22,55 @@ function _createClass(Constructor, protoProps, staticProps) {
   return Constructor;
 }
 
+function _defineProperty(obj, key, value) {
+  if (key in obj) {
+    Object.defineProperty(obj, key, {
+      value: value,
+      enumerable: true,
+      configurable: true,
+      writable: true
+    });
+  } else {
+    obj[key] = value;
+  }
+
+  return obj;
+}
+
+function ownKeys(object, enumerableOnly) {
+  var keys = Object.keys(object);
+
+  if (Object.getOwnPropertySymbols) {
+    var symbols = Object.getOwnPropertySymbols(object);
+    if (enumerableOnly) symbols = symbols.filter(function (sym) {
+      return Object.getOwnPropertyDescriptor(object, sym).enumerable;
+    });
+    keys.push.apply(keys, symbols);
+  }
+
+  return keys;
+}
+
+function _objectSpread2(target) {
+  for (var i = 1; i < arguments.length; i++) {
+    var source = arguments[i] != null ? arguments[i] : {};
+
+    if (i % 2) {
+      ownKeys(Object(source), true).forEach(function (key) {
+        _defineProperty(target, key, source[key]);
+      });
+    } else if (Object.getOwnPropertyDescriptors) {
+      Object.defineProperties(target, Object.getOwnPropertyDescriptors(source));
+    } else {
+      ownKeys(Object(source)).forEach(function (key) {
+        Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key));
+      });
+    }
+  }
+
+  return target;
+}
+
 function _inherits(subClass, superClass) {
   if (typeof superClass !== "function" && superClass !== null) {
     throw new TypeError("Super expression must either be null or a function");
@@ -29619,10 +29668,10 @@ var propTypes = createCommonjsModule(function (module) {
 
 var Button = function Button(_ref) {
   var tag = _ref.tag,
-      filterByTag = _ref.filterByTag,
+      action = _ref.action,
       isActive = _ref.isActive;
   return react.createElement("button", {
-    onClick: filterByTag,
+    onClick: action,
     "data-tag": tag
   }, tag, isActive ? "*" : "");
 };
@@ -29630,32 +29679,96 @@ var Button = function Button(_ref) {
 var Buttons = function Buttons(_ref) {
   var tags = _ref.tags,
       filterByTag = _ref.filterByTag,
-      activeTag = _ref.activeTag;
-  return react.createElement(react.Fragment, null, tags.map(function (tag) {
+      activeTags = _ref.activeTags,
+      removeTag = _ref.removeTag;
+  return react.createElement("div", null, tags.map(function (tag) {
+    var isActive = activeTags.indexOf(tag) > -1;
     return react.createElement(Button, {
       key: tag,
       tag: tag,
-      filterByTag: filterByTag,
-      isActive: activeTag === tag
+      action: isActive ? removeTag : filterByTag,
+      isActive: isActive
     });
   }));
 };
 
-var MainGrid = react.memo(function (_ref) {
-  var gallery = _ref.gallery;
+var Item = function Item(_ref) {
+  var item = _ref.item,
+      activeTags = _ref.activeTags;
+
+  var _React$useState = react.useState(true),
+      _React$useState2 = _slicedToArray(_React$useState, 2),
+      render = _React$useState2[0],
+      setRender = _React$useState2[1];
+
+  react.useEffect(function () {
+    if (!activeTags.length) return setRender(true);
+    var render = false;
+    var _iteratorNormalCompletion = true;
+    var _didIteratorError = false;
+    var _iteratorError = undefined;
+
+    try {
+      for (var _iterator = activeTags[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+        var tag = _step.value;
+
+        if (item.tags.includes(tag)) {
+          render = true;
+          break;
+        }
+      }
+    } catch (err) {
+      _didIteratorError = true;
+      _iteratorError = err;
+    } finally {
+      try {
+        if (!_iteratorNormalCompletion && _iterator["return"] != null) {
+          _iterator["return"]();
+        }
+      } finally {
+        if (_didIteratorError) {
+          throw _iteratorError;
+        }
+      }
+    }
+
+    setRender(render);
+  }, [activeTags]);
+  if (render) return react.createElement(item.Component, null);
+  return null;
+};
+
+var Content = function Content(_ref) {
+  var data = _ref.data,
+      activeTags = _ref.activeTags;
+  return data.map(function (item) {
+    return react.createElement(Item, {
+      key: item.id,
+      item: item,
+      activeTags: activeTags
+    });
+  });
+};
+
+var MainGrid = function MainGrid(_ref) {
+  var data = _ref.data,
+      updateActiveTags = _ref.updateActiveTags;
 
   var _React$useState = react.useState([]),
       _React$useState2 = _slicedToArray(_React$useState, 2),
       tags = _React$useState2[0],
       setTags = _React$useState2[1];
 
-  var _React$useState3 = react.useState(""),
+  var _React$useState3 = react.useState([]),
       _React$useState4 = _slicedToArray(_React$useState3, 2),
-      activeTag = _React$useState4[0],
-      setActiveTag = _React$useState4[1];
+      activeTags = _React$useState4[0],
+      setActiveTags = _React$useState4[1];
 
   react.useEffect(function () {
-    var tags = gallery.reduce(function (start, next) {
+    updateActiveTags(activeTags);
+  }, [activeTags]);
+  react.useEffect(function () {
+    var tags = data.reduce(function (start, next) {
       var tags = next.tags.split(",").filter(function (tag) {
         return start.indexOf(tag) === -1;
       });
@@ -29663,11 +29776,21 @@ var MainGrid = react.memo(function (_ref) {
       return start;
     }, []);
     setTags(tags);
-  }, []);
+  }, [data]);
 
   var filterByTag = function filterByTag(ev) {
     var tag = ev.target.dataset.tag;
-    setActiveTag(tag);
+    setActiveTags([].concat(_toConsumableArray(activeTags), [tag]));
+  };
+
+  var removeTag = function removeTag(ev) {
+    var tag = ev.target.dataset.tag;
+    var forDef = activeTags.indexOf(tag); // const newTags = [...activeTags];
+    // newTags.splice(forDef, 1);
+
+    setActiveTags(activeTags.filter(function (item, index) {
+      return index !== forDef;
+    }));
   };
 
   return react.createElement("div", {
@@ -29675,42 +29798,93 @@ var MainGrid = react.memo(function (_ref) {
   }, react.createElement(Buttons, {
     tags: tags,
     filterByTag: filterByTag,
-    activeTag: activeTag
+    activeTags: activeTags,
+    removeTag: removeTag
+  }), react.createElement(Content, {
+    data: data,
+    activeTags: activeTags
   }));
-});
+};
+
 MainGrid.propTypes = {
   tags: propTypes.arrayOf(propTypes.string)
 };
 
 var data = [{
+  id: 1,
   tags: "mountains,winter",
   link: "https://images.unsplash.com/photo-1578241561880-0a1d5db3cb8a?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1350&q=80",
   alt: ""
 }, {
+  id: 2,
   tags: "sea,sun",
   link: "https://images.unsplash.com/photo-1579198203629-e9aed4d27e3b?ixlib=rb-1.2.1&auto=format&fit=crop&w=634&q=80",
   alt: ""
 }, {
+  id: 3,
   tags: "sea,cliffs",
   link: "https://images.unsplash.com/photo-1578165219176-ece04edbd053?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1350&q=80",
   alt: ""
 }, {
+  id: 4,
   tags: "forest,winter",
   link: "https://images.unsplash.com/photo-1578167597239-14f8fc680b6b?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1556&q=80",
   alt: ""
 }, {
+  id: 5,
   tags: "river,valley",
   link: "https://images.unsplash.com/photo-1577993625454-1dec02cedd4b?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=659&q=80",
   alt: ""
 }, {
+  id: 6,
   tags: "mountains,forest",
   link: "https://images.unsplash.com/photo-1577998076239-ea6d9a7dcd82?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1350&q=80",
   alt: ""
 }, {
+  id: 7,
   tags: "forest,valley",
   link: "https://images.unsplash.com/photo-1577949239703-4e1d8aa72824?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1492&q=80",
   alt: ""
 }];
+
+var Filter =
+/*#__PURE__*/
+function (_React$Component) {
+  _inherits(Filter, _React$Component);
+
+  function Filter() {
+    var _this;
+
+    _classCallCheck(this, Filter);
+
+    _this = _possibleConstructorReturn(this, _getPrototypeOf(Filter).call(this));
+    _this.state = {
+      activeTags: []
+    };
+    _this.updateActiveTags = _this.updateActiveTags.bind(_assertThisInitialized(_this));
+    return _this;
+  }
+
+  _createClass(Filter, [{
+    key: "updateActiveTags",
+    value: function updateActiveTags(activeTags) {
+      this.setState({
+        activeTags: activeTags
+      });
+    }
+  }, {
+    key: "render",
+    value: function render() {
+      var data = this.props.data;
+      return react.createElement(MainGrid, {
+        updateActiveTags: this.updateActiveTags,
+        data: data
+      });
+    }
+  }]);
+
+  return Filter;
+}(react.Component);
 
 var App =
 /*#__PURE__*/
@@ -29718,16 +29892,51 @@ function (_React$Component) {
   _inherits(App, _React$Component);
 
   function App() {
+    var _this;
+
     _classCallCheck(this, App);
 
-    return _possibleConstructorReturn(this, _getPrototypeOf(App).apply(this, arguments));
+    _this = _possibleConstructorReturn(this, _getPrototypeOf(App).call(this));
+    _this.state = {
+      data: []
+    };
+    _this.filter = react.createRef();
+    return _this;
   }
 
   _createClass(App, [{
+    key: "componentDidMount",
+    value: function componentDidMount() {
+      this.setState({
+        data: data.map(function (elem) {
+          return _objectSpread2({}, elem, {
+            Component: function Component() {
+              return react.createElement("img", {
+                src: elem.link,
+                alt: elem.alt,
+                style: {
+                  height: "100%  ",
+                  width: "100px"
+                }
+              });
+            }
+          });
+        })
+      });
+    }
+  }, {
     key: "render",
     value: function render() {
-      return react.createElement("div", null, react.createElement(MainGrid, {
-        gallery: data
+      var _this2 = this;
+
+      var data = this.state.data;
+      return react.createElement("div", null, react.createElement("button", {
+        onClick: function onClick() {
+          return console.log(_this2.filter.current.state);
+        }
+      }, "Check current array"), react.createElement(Filter, {
+        data: data,
+        ref: this.filter
       }));
     }
   }]);

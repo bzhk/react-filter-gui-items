@@ -1,8 +1,8 @@
 import React from "react";
 
-const Button = ({ tag, filterByTag, isActive }) => {
+const Button = ({ tag, action, isActive }) => {
   return (
-    <button onClick={filterByTag} data-tag={tag}>
+    <button onClick={action} data-tag={tag}>
       {tag}
       {isActive ? "*" : ""}
     </button>
