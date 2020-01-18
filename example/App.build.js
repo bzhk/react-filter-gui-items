@@ -29695,14 +29695,23 @@ var Buttons = function Buttons(_ref) {
 var Item = function Item(_ref) {
   var item = _ref.item,
       activeTags = _ref.activeTags;
+  var itemRef = react.createRef();
 
   var _React$useState = react.useState(true),
       _React$useState2 = _slicedToArray(_React$useState, 2),
       render = _React$useState2[0],
       setRender = _React$useState2[1];
 
+  var _React$useState3 = react.useState({}),
+      _React$useState4 = _slicedToArray(_React$useState3, 2),
+      size = _React$useState4[0],
+      setSize = _React$useState4[1];
+
   react.useEffect(function () {
-    if (!activeTags.length) return setRender(true);
+    if (!activeTags.length) {
+      return setRender(true);
+    }
+
     var render = false;
     var _iteratorNormalCompletion = true;
     var _didIteratorError = false;
@@ -29734,20 +29743,45 @@ var Item = function Item(_ref) {
 
     setRender(render);
   }, [activeTags]);
-  if (render) return react.createElement(item.Component, null);
-  return null;
+  react.useEffect(function () {
+    var size = {
+      width: itemRef.current.children[0].clientWidth,
+      transform: "translateY(0)",
+      opacity: "100%"
+    };
+    setSize(size);
+  }, []);
+  var sizeStyle = render ? size : {
+    width: "0",
+    opacity: "0%",
+    transform: "translateY(-73px)"
+  };
+  return react.createElement("div", {
+    ref: itemRef,
+    style: _objectSpread2({
+      transition: "1s"
+    }, sizeStyle)
+  }, react.createElement(item.Component, null));
 };
 
 var Content = function Content(_ref) {
   var data = _ref.data,
       activeTags = _ref.activeTags;
-  return data.map(function (item) {
+  return react.createElement("div", {
+    style: {
+      display: "flex",
+      justifyContent: "flex-start",
+      flexWrap: "wrap",
+      width: "300px",
+      overflow: "hidden"
+    }
+  }, data.map(function (item) {
     return react.createElement(Item, {
       key: item.id,
       item: item,
       activeTags: activeTags
     });
-  });
+  }));
 };
 
 var MainGrid = function MainGrid(_ref) {
@@ -29915,8 +29949,8 @@ function (_React$Component) {
                 src: elem.link,
                 alt: elem.alt,
                 style: {
-                  height: "100%  ",
-                  width: "100px"
+                  width: "100px ",
+                  height: "auto"
                 }
               });
             }

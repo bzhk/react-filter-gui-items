@@ -20,7 +20,7 @@ class App extends React.Component {
           <img
             src={elem.link}
             alt={elem.alt}
-            style={{ height: "100%  ", width: "100px" }}
+            style={{ width: "100px ", height: "auto" }}
           />
         )
       }))
