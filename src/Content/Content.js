@@ -1,17 +1,10 @@
 import React from "react";
 import Item from "./Item/Item";
+import "./content.css";
 
 const Content = ({ data, activeTags }) => {
   return (
-    <div
-      style={{
-        display: "flex",
-        justifyContent: "flex-start",
-        flexWrap: "wrap",
-        width: "300px",
-        overflow: "hidden"
-      }}
-    >
+    <div className="filter-content">
       {data.map(item => (
         <Item key={item.id} item={item} activeTags={activeTags} />
       ))}

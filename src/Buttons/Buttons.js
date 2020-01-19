@@ -1,11 +1,12 @@
 import React from "react";
 import Button from "./Button/Button";
+import "./buttons.css";
 
 const Buttons = ({ tags, filterByTag, activeTags, removeTag }) => {
   return (
-    <div>
+    <div className="tags-container">
       {tags.map(tag => {
-        const isActive = activeTags.indexOf(tag) > -1;
+        const isActive = activeTags.includes(tag);
         return (
           <Button
             key={tag}

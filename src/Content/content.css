@@ -1,0 +1,7 @@
+.filter-content {
+  display: flex;
+  justify-content: flex-start;
+  flex-wrap: wrap;
+  overflow: hidden;
+  align-items: center;
+}

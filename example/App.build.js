@@ -29666,23 +29666,60 @@ var propTypes = createCommonjsModule(function (module) {
 }
 });
 
+function styleInject(css, ref) {
+  if ( ref === void 0 ) ref = {};
+  var insertAt = ref.insertAt;
+
+  if (!css || typeof document === 'undefined') { return; }
+
+  var head = document.head || document.getElementsByTagName('head')[0];
+  var style = document.createElement('style');
+  style.type = 'text/css';
+
+  if (insertAt === 'top') {
+    if (head.firstChild) {
+      head.insertBefore(style, head.firstChild);
+    } else {
+      head.appendChild(style);
+    }
+  } else {
+    head.appendChild(style);
+  }
+
+  if (style.styleSheet) {
+    style.styleSheet.cssText = css;
+  } else {
+    style.appendChild(document.createTextNode(css));
+  }
+}
+
+var css = ".tag {\r\n  padding: 5px 20px;\r\n  border-radius: 25px;\r\n  background: #303841;\r\n  color: #fff;\r\n  margin: 0 5px;\r\n  cursor: pointer;\r\n  font-size: 15px;\r\n}\r\n.tag-active {\r\n  background: #df2878;\r\n}\r\n";
+styleInject(css);
+
 var Button = function Button(_ref) {
   var tag = _ref.tag,
       action = _ref.action,
       isActive = _ref.isActive;
-  return react.createElement("button", {
+  var styles = isActive ? "tag tag-active" : "tag";
+  return react.createElement("div", {
     onClick: action,
-    "data-tag": tag
-  }, tag, isActive ? "*" : "");
+    "data-tag": tag,
+    className: styles
+  }, tag);
 };
+
+var css$1 = ".tags-container {\r\n  padding: 10px;\r\n  background: #1b2028;\r\n  display: flex;\r\n  align-items: center;\r\n  justify-content: center;\r\n}\r\n";
+styleInject(css$1);
 
 var Buttons = function Buttons(_ref) {
   var tags = _ref.tags,
       filterByTag = _ref.filterByTag,
       activeTags = _ref.activeTags,
       removeTag = _ref.removeTag;
-  return react.createElement("div", null, tags.map(function (tag) {
-    var isActive = activeTags.indexOf(tag) > -1;
+  return react.createElement("div", {
+    className: "tags-container"
+  }, tags.map(function (tag) {
+    var isActive = activeTags.includes(tag);
     return react.createElement(Button, {
       key: tag,
       tag: tag,
@@ -29764,17 +29801,14 @@ var Item = function Item(_ref) {
   }, react.createElement(item.Component, null));
 };
 
+var css$2 = ".filter-content {\r\n  display: flex;\r\n  justify-content: flex-start;\r\n  flex-wrap: wrap;\r\n  overflow: hidden;\r\n  align-items: center;\r\n}\r\n";
+styleInject(css$2);
+
 var Content = function Content(_ref) {
   var data = _ref.data,
       activeTags = _ref.activeTags;
   return react.createElement("div", {
-    style: {
-      display: "flex",
-      justifyContent: "flex-start",
-      flexWrap: "wrap",
-      width: "300px",
-      overflow: "hidden"
-    }
+    className: "filter-content"
   }, data.map(function (item) {
     return react.createElement(Item, {
       key: item.id,
@@ -29783,6 +29817,9 @@ var Content = function Content(_ref) {
     });
   }));
 };
+
+var css$3 = ".main-grid {\r\n  font-family: Arial, Helvetica, sans-serif;\r\n  margin-top: \"50px\";\r\n}\r\n";
+styleInject(css$3);
 
 var MainGrid = function MainGrid(_ref) {
   var data = _ref.data,
@@ -29804,7 +29841,7 @@ var MainGrid = function MainGrid(_ref) {
   react.useEffect(function () {
     var tags = data.reduce(function (start, next) {
       var tags = next.tags.split(",").filter(function (tag) {
-        return start.indexOf(tag) === -1;
+        return !start.includes(tag);
       });
       start.push.apply(start, _toConsumableArray(tags));
       return start;
@@ -29819,16 +29856,15 @@ var MainGrid = function MainGrid(_ref) {
 
   var removeTag = function removeTag(ev) {
     var tag = ev.target.dataset.tag;
-    var forDef = activeTags.indexOf(tag); // const newTags = [...activeTags];
-    // newTags.splice(forDef, 1);
-
+    var forDef = activeTags.indexOf(tag);
     setActiveTags(activeTags.filter(function (item, index) {
       return index !== forDef;
     }));
   };
 
   return react.createElement("div", {
-    id: "main-grid"
+    id: "main-grid",
+    className: "main-grid"
   }, react.createElement(Buttons, {
     tags: tags,
     filterByTag: filterByTag,
@@ -29932,7 +29968,8 @@ function (_React$Component) {
 
     _this = _possibleConstructorReturn(this, _getPrototypeOf(App).call(this));
     _this.state = {
-      data: []
+      data: [],
+      tags: []
     };
     _this.filter = react.createRef();
     return _this;
@@ -29945,14 +29982,20 @@ function (_React$Component) {
         data: data.map(function (elem) {
           return _objectSpread2({}, elem, {
             Component: function Component() {
-              return react.createElement("img", {
+              return react.createElement("div", {
+                style: {
+                  width: "200px ",
+                  height: "200px",
+                  overflow: "hidden"
+                }
+              }, react.createElement("img", {
                 src: elem.link,
                 alt: elem.alt,
                 style: {
-                  width: "100px ",
-                  height: "auto"
+                  height: "100%",
+                  width: "100%"
                 }
-              });
+              }));
             }
           });
         })
@@ -29964,11 +30007,17 @@ function (_React$Component) {
       var _this2 = this;
 
       var data = this.state.data;
-      return react.createElement("div", null, react.createElement("button", {
-        onClick: function onClick() {
-          return console.log(_this2.filter.current.state);
+      return react.createElement("div", {
+        style: {
+          width: "800px"
         }
-      }, "Check current array"), react.createElement(Filter, {
+      }, react.createElement("div", null, react.createElement("button", {
+        onClick: function onClick() {
+          return _this2.setState({
+            tags: _this2.filter.current.state.activeTags
+          });
+        }
+      }, "Check current array"), react.createElement("div", null, this.state.tags.join(", "))), react.createElement(Filter, {
         data: data,
         ref: this.filter
       }));

@@ -1,0 +1,12 @@
+.tag {
+  padding: 5px 20px;
+  border-radius: 25px;
+  background: #303841;
+  color: #fff;
+  margin: 0 5px;
+  cursor: pointer;
+  font-size: 15px;
+}
+.tag-active {
+  background: #df2878;
+}
